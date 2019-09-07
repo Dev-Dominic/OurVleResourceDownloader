@@ -13,8 +13,8 @@ options.add_experimental_option('prefs', profile)
 driver = webdriver.Chrome(options = options)
 driver.get("https://ourvle.mona.uwi.edu")
 
-driver.find_element_by_name("username").send_keys("620118591")
-driver.find_element_by_name("password").send_keys("QJuWIwQ4")
+driver.find_element_by_xpath("//form/input[@name='username']").send_keys("620118591")
+driver.find_element_by_xpath("//form/input[@name='password']").send_keys("QJuWIwQ4")
 driver.find_element_by_xpath("//button[@class='btn']").click()
 
 try: 

@@ -53,9 +53,14 @@ def webNavigate(id_num, password, download_dir):
             # Downloads each resource on page j
             # downloadRes(driver.title,driver.find_element_by_name('a'))
 
-            all_links = ' '.join([link.get_attribute('href') for link in driver.find_elements_by_name('a')])
+            all_links = [link.get_attribute('href') for link in driver.find_elements_by_tag_name('a')]
+            
+            for link in all_links:
+                if re.search(r'.?/mod/resource/view.?',str(link)) && re.search():
+                    driver.find_element_by_xpath(f'//a[@href="{link}"]').click()
 
             driver.close()
+            driver.switch_to.window(driver.window_handles[0])
             
 
     
