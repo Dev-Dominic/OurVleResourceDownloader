@@ -16,37 +16,48 @@ def createCourseDir(destFolder):
 
 # Navigates the website and downloads the files
 def webNavigate(id_num, password, download_dir):
-    def downloadRes():
-        pass
+    
+    # Retrieves all resource links using regex 
+    """
+    def downloadRes(course_name, all_links):
+        os.mkdir(course_name)
 
+        # Uses regex to all resource links 
+    """
+
+    # Setting chrome options
     options = webdriver.ChromeOptions()
-    download_folder = "/home/dominic/Downloads"
+    options.add_experimental_option('prefs',{"plugins.always_open_pdf_externally": True, "download.default_directory": download_dir})
 
-    profile = {"plugins.always_open_pdf_externally": True, "download.default_directory": download_folder}
-
-    options.add_experimental_option('prefs', profile)
-
+    # Instantiation of webdriver
     driver = webdriver.Chrome(options = options)
     driver.get("https://ourvle.mona.uwi.edu")
 
-    driver.find_element_by_name("username").send_keys("620118591")
-    driver.find_element_by_name("password").send_keys("QJuWIwQ4")
+    # Login to OURVLE
+    driver.find_element_by_name("username").send_keys(id_num)
+    driver.find_element_by_name("password").send_keys(password)
     driver.find_element_by_xpath("//button[@class='btn']").click()
 
+    # Navigation to course pages after login
     try: 
         driver.find_element_by_xpath("//input[@value='Cancel']").click()
     finally: 
-        href_even = driver.find_elements_by_xpath("//div[@data-type='1']/div[@class='info']/h3[@class='coursename']/a")
+        anchor_links = driver.find_elements_by_xpath("//div[@data-type='1']/div[@class='info']/h3[@class='coursename']/a")
 
-        """
-        for href in href_even:
+        for href in anchor_links:
             driver.execute_script(f"window.open('{href.get_attribute('href')}');")
-        """
-        driver.execute_script(f"window.open('{href_even[1].get_attribute('href')}');")
-        driver.switch_to.window(driver.window_handles[1])
+            driver.switch_to.window(driver.window_handles[1])
 
+            # TODO Create a file for specific course page detailing the files downloaded already 
 
-        driver.find_element_by_xpath("//a[@href='https://ourvle.mona.uwi.edu/mod/resource/view.php?id=218809']").click()
+            # Downloads each resource on page j
+            # downloadRes(driver.title,driver.find_element_by_name('a'))
+
+            all_links = ' '.join([link.get_attribute('href') for link in driver.find_elements_by_name('a')])
+
+            driver.close()
+            
+
     
 
 # python downloadFile.py <id_number> <password> <DownloadDestination (file_path)>
