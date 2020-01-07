@@ -10,7 +10,10 @@ from time import sleep
 # Moves into coures directory and returns path to 'Courses' 
 def createCourseDir(destFolder):
     os.chdir(destFolder)
-    os.mkdir('Courses')
+
+    if not os.path.isdir("Courses"):
+        os.mkdir('Courses')
+    
     os.chdir('Courses')
 
     return os.getcwd()
@@ -18,27 +21,25 @@ def createCourseDir(destFolder):
 # Navigates the website and downloads the files
 def webNavigate(id_num, password, download_dir):
     
-    # Retrieves all resource links using regex 
-    """
-    def downloadRes(course_name, all_links):
-        os.mkdir(course_name)
-
-        # Uses regex to all resource links 
-    """
-
     # Setting chrome options
     options = webdriver.ChromeOptions()
+    options.add_argument("--headless")
+    options.add_argument('window-size=1200,1100')
     options.add_experimental_option('prefs',{"plugins.always_open_pdf_externally": True, "download.default_directory": download_dir})
 
     # Instantiation of webdriver
     driver = webdriver.Chrome(options = options)
-    #driver.get("https://ourvle.mona.uwi.edu")
-    driver.get("https://engvle.com/")
+    # drive = webdriver.Firefox()
+    driver.get("https://ourvle.mona.uwi.edu")
+    # driver.get("https://engvle.com/")
+
+    # LOGGING MESSAGE 4
+    print(driver.current_window_handle)
 
     # Login to OURVLE
     driver.find_element_by_name("username").send_keys(id_num)
     driver.find_element_by_name("password").send_keys(password)
-    driver.find_element_by_xpath("//input [@value='Log in']").click()
+    driver.find_element_by_xpath("//button[contains(text(),'Log in')]").click()
 
     # Navigation to course pages after login
     try: 
@@ -52,17 +53,19 @@ def webNavigate(id_num, password, download_dir):
         for href in anchor_links:
             # Switches to intial course page list 
             driver.switch_to.window(driver.window_handles[0])
-
+        
             driver.execute_script(f"window.open('{href.get_attribute('href')}');")
             driver.switch_to.window(driver.window_handles[1])
 
             course_page_title = driver.title
 
             # Skips leve one course pages
-            if re.search(r'Course: (COMP11((26)|(27)))', course_page_title):
+            if not re.search(r'Course: Analysis of Algorithms', course_page_title):
                 driver.close()
                 continue
 
+            # LOGGING MESSAGE 1
+            print(course_page_title)
 
             # TODO Create a file for specific course page detailing the files downloaded already 
 
@@ -74,6 +77,13 @@ def webNavigate(id_num, password, download_dir):
             for link in all_links:
                 if re.search(r'.?/mod/resource/view.?',str(link[0])) and (not re.search(r'^(Class Recording)', str(link[1]))):
                     driver.find_element_by_xpath(f'//a[@href="{link[0]}"]').click()
+
+
+                    # LOGGING MESSAGE 2
+                    print(f"File: {link}")
+
+                    # LOGGING MESSAGE 3(Window Hanldes)
+                    print(f"Current Window: {driver.current_window_handle}")
 
                     if driver.title != course_page_title:
                         driver.back()
@@ -97,7 +107,16 @@ def webNavigate(id_num, password, download_dir):
 
             driver.close()
 
-# python downloadFile.py <id_number> <password> <DownloadDestination (file_path)>
+# python downloadRes.py <id_number> <password> <DownloadDestination (file_path)>
 if __name__ == "__main__":
     download_dir = createCourseDir(sys.argv[3])
     webNavigate(sys.argv[1], sys.argv[2], download_dir+"/")
+
+    # options = webdriver.ChromeOptions()
+
+    # options.add_argument("--headless")
+    # driver = webdriver.Chrome(options = options)
+
+    # driver.get("https://www.python.org")
+    # print(driver.title)
+
